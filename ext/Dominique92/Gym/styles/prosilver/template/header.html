@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html dir="ltr" lang="fr">
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="icon" type="image/jpg" href="ext/Dominique92/Gym/styles/prosilver/theme/images/icon.jpg" />
+	<title><!-- IF POST_SUBJECT -->{POST_SUBJECT}<!-- ELSEIF TOPIC_TITLE -->{TOPIC_TITLE}<!-- ELSE -->{SITENAME} {SITE_DESCRIPTION}<!-- ENDIF --></title>
+
+	<link href="{T_FONT_AWESOME_LINK}" rel="stylesheet">
+	<!-- INCLUDECSS icons.css -->
+	<!-- INCLUDEJS {T_JQUERY_LINK} -->
+	<link href="{T_ASSETS_PATH}/MyOl/ol/ol.css?assets_version={T_ASSETS_VERSION}" rel="stylesheet">
+	<script src="{T_ASSETS_PATH}/MyOl/ol/ol.js?assets_version={T_ASSETS_VERSION}"></script>
+	<!-- INCLUDECSS @Dominique92_Gym/stylesheet.css -->
+	<!-- INCLUDEJS @Dominique92_Gym/index.js -->
+	{$STYLESHEETS}
+	<!-- EVENT overall_header_stylesheets_after -->
+</head>
+
+<body class="gym gym-{SCRIPT_NAME}">
+	<!-- LOGO FÉDÉ -->
+	<a class="logo" title="Sport Santé" href="https://www.sport-sante.fr/" target="_BLANK">
+		<img alt="EPGV" src="ext/Dominique92/Gym/styles/prosilver/theme/images/logo.png">
+	</a>
+
+<div class="banniere">
+	<div class="edit-user">
+		<!-- IF S_USER_LOGGED_IN -->
+			<a href="ucp.php?i=ucp_profile&mode=reg_details" title="{L_PROFILE}">{S_USERNAME}</a>
+			<ul><li>
+					<a href="viewforum.php?f=1">Rubriques</a>
+				</li><li>
+					<a href="posting.php?mode=reply&t={TOPIC_ACTIVITES}">Ajouter une activité</a>
+				</li><li>
+					<a href="posting.php?mode=reply&t={TOPIC_EQUIPE}">Ajouter une animatrice</a>
+				</li><li>
+					<a href="posting.php?mode=reply&t={TOPIC_LIEUX}">Ajouter un lieu</a>
+				</li><li>
+					<a href="posting.php?mode=reply&t={TOPIC_SEANCES}">Ajouter une séance</a>
+				</li><li>
+					<a href="posting.php?mode=reply&t={TOPIC_EVENEMENT}">Ajouter un évènement</a>
+				<!-- IF U_ACP -->
+					</li><li>
+						<a href="{{ U_ACP }}">{L_ACP}</a>
+				<!-- ENDIF -->
+				</li><li>
+					<a href="{U_LOGIN_LOGOUT}">{L_LOGIN_LOGOUT}</a>
+			</li></ul>
+		<!-- ELSE -->
+			<a href="{U_LOGIN_LOGOUT}" title="{L_LOGIN_LOGOUT}" class="button button-icon-only">
+				<i class="icon fa-pencil"></i>
+			</a>
+		<!-- ENDIF -->
+	</div>
+
+	<form action="{U_SEARCH}" method="get" class="recherche">
+		<fieldset>
+			<input name="keywords" id="keywords" type="search" maxlength="128" title="{L_SEARCH_KEYWORDS}"
+				class="inputbox search tiny" size="20" value="{SEARCH_WORDS}" placeholder="{L_SEARCH_MINI}" />
+			<button class="button button-search" type="submit" title="{L_SEARCH}">
+				<i class="icon fa-search"></i><span class="sr-only">{L_SEARCH}</span>
+			</button>
+			{S_SEARCH_HIDDEN_FIELDS}
+		</fieldset>
+	</form>
+
+	<h1>
+		<a title="Retour à l'accueil" href=".">
+			{SITENAME}<span> {SITE_DESCRIPTION}</span>
+		</a>
+	</h1>
+</div>
+
+<ul class="menu <!-- IF REQUEST_T or REQUEST_P -->replie<!-- ENDIF -->">
+	<!-- BEGIN topic -->
+	<!-- IF topic.FIRST_GYM_MENU -->
+	<li>
+		<div style="background:{topic.COULEUR_TITRE}">
+			<a href="viewtopic.php?t={topic.TOPIC_ID}">{topic.TOPIC_TITLE}</a>
+
+			<!-- IF U_MCP -->
+				<a href="posting.php?mode=edit&f=2&p={topic.TOPIC_FIRST_POST_ID}"
+					title="Modifier le titre" class="button button-icon-only">
+					<i class="icon fa-pencil"></i>
+				</a>
+			<!-- ENDIF -->
+		</div>
+
+		<!-- IF topic.COUNT > 1 -->
+		<ul style="background:{topic.COULEUR}">
+			<!-- BEGIN post -->
+			<!-- IF post.GYM_MENU and post.TOPIC_FIRST_POST_ID != post.POST_ID -->
+				<!-- IF REQUEST_P == post.POST_ID -->
+					<li class="menu-select">
+						{post.POST_SUBJECT}
+					</li>
+				<!-- ELSE -->
+					<li>
+						<a title = "Voir la fiche {post.POST_SUBJECT}" href="viewtopic.php?p={post.POST_ID}">
+							{post.POST_SUBJECT}
+						</a>
+
+						<!-- IF U_MCP -->
+							<a href="posting.php?mode=edit&f=2&p={post.POST_ID}"
+								title="Modifier le menu" class="button button-icon-only">
+								<i class="icon fa-pencil"></i>
+							</a>
+						<!-- ENDIF -->
+					</li>
+				<!-- ENDIF -->
+			<!-- ENDIF -->
+			<!-- END post -->
+		</ul>
+		<!-- ENDIF -->
+	</li>
+	<!-- ENDIF -->
+	<!-- END topic -->
+</ul>

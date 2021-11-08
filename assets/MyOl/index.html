@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<!--
+© Dominique Cavailhez 2019
+https://github.com/Dominique92/MyOl
+Based on https://openlayers.org
+-->
+<html>
+<head>
+	<title>My Openlayers simple example</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<link href="examples/images/favicon.png" rel="icon" type="image/png" />
+
+	<!-- Openlayers -->
+	<link  href="ol/ol.css" type="text/css" rel="stylesheet">
+	<script src="ol/ol.js"></script>
+
+	<!-- Recherche par nom -->
+	<link  href="geocoder/ol-geocoder.css" type="text/css" rel="stylesheet">
+	<script src="geocoder/ol-geocoder-debug.js"></script>
+
+	<!-- My Openlayers -->
+	<link  href="src/layerSwitcher.css" type="text/css" rel="stylesheet">
+	<link  href="src/myol.css" type="text/css" rel="stylesheet">
+	<script src="src/header.js"></script>
+	<script src="src/tileLayers.js"></script>
+	<script src="src/layerSwitcher.js"></script>
+	<script src="src/myol.js"></script>
+
+	<style>
+		html, body {
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		#map {
+			width: 100vw;
+			height: calc(100vh - 22em);
+		}
+	</style>
+</head>
+
+<body>
+	<div id="map"></div>
+
+	<h1>Other demos</h1>
+	<p><a href="examples/layerSwitcher.html">LAYER SWITCHER</a></p>
+	<p><a href="examples/tileLayers.html">TILE LAYERS</a></p>
+	<p><a href="examples/vectorLayers.html">VECTOR LAYERS</a></p>
+	<p><a href="examples/markers.html">MARKERS</a></p>
+	<p><a href="examples/editor.html">EDITOR</a></p>
+	<p><a href="gps">OFF LINE GPS</a></p>
+	<p><a href="build.php">BUILD</a></p>
+	<p><a href="https://github.com/Dominique92/MyOl/">GITHUB</a></p>
+
+	<script>
+		// Must be after the <div id="map"> tag
+		new ol.Map({
+			target: 'map',
+			controls: controlsCollection({
+				controlLayerSwitcher: {
+					baseLayers: layersCollection(),
+					overlays: overlaysCollection(),
+				},
+			}),
+		});
+	</script>
+</body>
+</html>

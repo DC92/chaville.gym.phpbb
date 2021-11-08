@@ -1,0 +1,168 @@
+<!-- INCLUDEJS @Dominique92_Gym/index.js -->
+
+<!-- IF PARAM_PUBLI -->
+<div>
+	<b>Publication dans :</b><br/>
+
+	Menu <input type="checkbox" name="gym_menu"
+	<!-- IF GYM_MENU === 'on' -->
+		checked="checked"
+	<!-- ENDIF -->
+	/> &nbsp;
+
+	Accueil <input type="checkbox" name="gym_accueil"
+	<!-- IF GYM_ACCUEIL === 'on' -->
+		checked="checked"
+	<!-- ENDIF -->
+	/> &nbsp;
+
+	Horaires <input type="checkbox" name="gym_horaires"
+	<!-- IF GYM_HORAIRES === 'on' -->
+		checked="checked"
+	<!-- ENDIF -->
+	/> &nbsp;
+
+	Ordre <input name="gym_ordre_menu" type="number" style="width:40px" value="{GYM_ORDRE_MENU}"> &nbsp;
+</div><br/>
+<!-- ENDIF -->
+
+<!-- IF PARAM_ACTIV -->
+<div>
+	<b>Type :</b><br/>
+
+	Activité:
+	<select name="gym_activite">
+		<option>?</option>
+		<!-- BEGIN liste_activites -->
+			<option value="{liste_activites.POST_ID}"
+				<!-- IF liste_activites.POST_ID == GYM_ACTIVITE -->
+					selected="selected"
+				<!-- ENDIF -->
+			>
+				{liste_activites.POST_SUBJECT}
+			</option>
+		<!-- END liste_activites -->
+	</select> &nbsp;
+
+	Lieu:
+	<select name="gym_lieu">
+		<option>?</option>
+		<!-- BEGIN liste_lieux -->
+			<option value="{liste_lieux.POST_ID}"
+				<!-- IF liste_lieux.POST_ID == GYM_LIEU -->
+					selected="selected"
+				<!-- ENDIF -->
+			>
+				{liste_lieux.POST_SUBJECT}
+			</option>
+		<!-- END liste_lieux -->
+	</select> &nbsp;
+
+	Accès:
+	<select name="gym_acces">
+		<option value="">ouvert</option>
+		<option value="ferme"
+			<!-- IF GYM_ACCES === 'ferme' -->
+				selected="selected"
+			<!-- ENDIF -->
+		>fermé</option>
+	</select> &nbsp;
+
+	Animation:
+	<select name="gym_animateur">
+		<option>?</option>
+		<!-- BEGIN liste_equipe -->
+			<option value="{liste_equipe.POST_ID}"
+				<!-- IF liste_equipe.POST_ID == GYM_ANIMATEUR -->
+					selected="selected"
+				<!-- ENDIF -->
+			>
+				{liste_equipe.POST_SUBJECT}
+			</option>
+		<!-- END liste_equipe -->
+	</select> &nbsp;
+
+	Cert:
+	<select name="gym_cert">
+		<option value="0"></option>
+		<option value="1">CERT</option>
+	</select><br /><br />
+
+	Deuxième ligne de la case horaire <input name="gym_nota" type="text" style="width:400px" value="{GYM_NOTA}"> &nbsp;
+
+</div><br/>
+<!-- ENDIF -->
+
+<!-- IF PARAM_CALEN -->
+<div>
+	<b>Calendrier :</b><br/>
+
+	<select name="gym_jour" id="gym_jour" onchange="changeDayCalendar()">
+		<!-- BEGIN liste_jours -->
+			<option value="{liste_jours.NO}"
+				<!-- IF liste_jours.NO == GYM_JOUR -->
+					selected="selected"
+				<!-- ENDIF -->
+			>
+				{liste_jours.VALEUR}
+			</option>
+		<!-- END liste_jours -->
+	</select> &nbsp;
+
+	<select name="gym_heure">
+		<!-- BEGIN liste_heures -->
+			<option value="{liste_heures.VALEUR}"
+				<!-- IF liste_heures.VALEUR == GYM_HEURE -->
+					selected="selected"
+				<!-- ENDIF -->
+			>
+				{liste_heures.VALEUR}
+			</option>
+		<!-- END liste_heures -->
+	</select> h
+	<select name="gym_minute">
+		<!-- BEGIN liste_minutes -->
+			<option value="{liste_minutes.VALEUR}"
+				<!-- IF liste_minutes.VALEUR == GYM_MINUTE -->
+					selected="selected"
+				<!-- ENDIF -->
+			>
+				{liste_minutes.VALEUR}
+			</option>
+		<!-- END liste_minutes -->
+	</select> &nbsp;
+
+	durée
+	<input name="gym_duree_heures" type="number" step="0.25" min ="1" style="width:60px"
+	value="<!-- IF GYM_DUREE_HEURES -->{GYM_DUREE_HEURES}<!-- ELSE -->1<!-- ENDIF -->">h
+	<input name="gym_duree_jours" type="number" style="width:60px" value="{GYM_DUREE_JOURS}">jour(s)
+	<br/><br/>
+
+	Période : scolaire
+	<input type="checkbox" name="gym_scolaire" id="gym_scolaire" onchange="changeDayCalendar()"
+	<!-- IF GYM_SCOLAIRE != 'off' -->
+		checked="checked"
+	<!-- ENDIF -->
+	/><br/>
+
+	<table id="edit_semaines"
+		class="calendrier"
+		data-id="{REQUEST_P}"
+		data-semaines="{GYM_SEMAINES}"
+		data-jour="{GYM_JOUR}"
+	>
+		<tr id="cal{REQUEST_P}_m8" style="display:none"></tr>
+		<tr id="cal{REQUEST_P}_m9"><td>Septembre</td></tr>
+		<tr id="cal{REQUEST_P}_m10"><td>Octobre</td></tr>
+		<tr id="cal{REQUEST_P}_m11"><td>Novembre</td></tr>
+		<tr id="cal{REQUEST_P}_m12"><td>Décembre</td></tr>
+		<tr id="cal{REQUEST_P}_m1"><td>Janvier</td></tr>
+		<tr id="cal{REQUEST_P}_m2"><td>Février</td></tr>
+		<tr id="cal{REQUEST_P}_m3"><td>Mars</td></tr>
+		<tr id="cal{REQUEST_P}_m4"><td>Avril</td></tr>
+		<tr id="cal{REQUEST_P}_m5"><td>Mai</td></tr>
+		<tr id="cal{REQUEST_P}_m6"><td>Juin</td></tr>
+		<tr id="cal{REQUEST_P}_m7" style="display:none"></tr>
+	</table>
+</div>
+<!-- ENDIF -->
