@@ -165,7 +165,7 @@ if ($est_bureau) { ?>
 ?><hr />
 Liste des bulletins à envoyer à :<br />
 <?
-if ($est_bureau)
+if ($est_bureau && !isset ($_GET['prenom']))
 	foreach ($animateurs AS $mail => $prenom) {
 		$prenom_flat = str_replace(['é','è',' '], ['e','e','-'], $prenom);
 		echo "<a href='./?prenom=$prenom_flat'>$prenom</a><br />";
@@ -177,18 +177,22 @@ if ($est_bureau)
 // Envoi des bulletins par le trésorier
 if ($est_bureau) {
 	$prenom_liste = @$_GET['prenom'];
+	$time_bulletin = time() - 15*24*3600;
+	$mois_bulletin = $mois[date('m',$time_bulletin)].date(' Y',$time_bulletin);
 	$intro_liste = 'Pour envoyer un bulletin de paie à '.$prenom_liste.
 		',<br/>modifiez le texte';
 	$mail_liste = @$mailAnimateurs [$prenom_liste];
-	$titre_liste = "Bulletin de paie de $prenom_liste pour octobre 2021";
+	$titre_liste = "Bulletin de paie de $prenom_liste pour $mois_bulletin";
 	$texte_edit_liste = "Bonjour $prenom_liste.
+Meilleurs voeux pour cette année 2022.
 
-Ci-joint ton bulletin de paie pour ".$mois[date('m')].date(' Y').".
+Ci-joint ton bulletin de paie pour $mois_bulletin.
 La somme correspondante à la dernière ligne a été virée sur ton compte.
 
 Cordialement.
 
-Dominique
+Jean François Bonin.
+Votre nouveau trésorier
 
 Rappel : tu retrouveras tes bulletins de paie et attestations sur http://chaville.gym.c92.fr/archives
 Ces fichiers peuvent être lus et imprimés avec https://get.adobe.com/fr/reader/ (Télécharger Acrobat Reader)";
@@ -235,10 +239,11 @@ if ($prenom_liste) {
 		<? } ?>
 
 		<? if ($files)
-			foreach (array_reverse($files) AS $f) {
+			foreach (array_reverse($files) AS $k=>$f) {
 				$nf = explode ('-', str_replace ('/', '-', $f));
 				?>
-				<input type="radio" name="send_attachment" value="<?=$f?>">
+				<input type="radio" name="send_attachment"
+					value="<?=$f?>" <?=$k?'':'checked="checked"'?> />
 				<?=ucfirst($mois[$nf[2]]).' '.$nf[1]?>
 				<br><?
 			}
