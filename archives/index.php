@@ -6,6 +6,7 @@ error_reporting(E_ALL);
 ini_set('display_errors','on');
 
 include 'liste.php';
+include 'texte_mail.php';
 
 $nomAnimateurs = $mailAnimateurs = [];
 foreach ($animateurs AS $k=>$v) {
@@ -90,6 +91,11 @@ $debug = [
  */
 if (isset ($_POST['send_address'])) {
 	if (isset (($bureau + $animateurs)[$_POST['send_address']])) { // Seulement vers des mails connus
+		$send_subject = explode ('<', $_POST['send_subject']);
+		preg_match('/([0-9]*)-([0-9]*)-/', $_POST['send_attachment'], $an_mois);
+		if (count ($send_subject) && count ($an_mois))
+			$_POST['send_subject'] = $send_subject[0].$mois[$an_mois[2]].' '.$an_mois[1].' ';
+
 		include 'PHPMailer/PHPMailerAutoload.php'; //https://github.com/PHPMailer/PHPMailer
 		$mailer = new PHPMailer;
 		$mailer->CharSet = 'UTF-8';
@@ -108,6 +114,9 @@ if (isset ($_POST['send_address'])) {
 		else {
 			$mailer->Send();
 			echo "<p style='color:red'>{$_POST['send_confirm']}</p>";
+			file_put_contents ('texte_mail.php',
+				"\n\$texte_edit_liste = \"{$_POST['send_body']}\";\n",
+				FILE_APPEND);
 		}
 	} else
 		echo "<p style='color:red'>Mail <b><?=$send_address?></b> inconnu.<p>";
@@ -116,18 +125,18 @@ if (isset ($_POST['send_address'])) {
 /**
  * Acceuil
  */
-if ($prenom)
-	echo "<p>Bonjour $prenom</p>";
-else
+if ($prenom) {
+	if (!count ($_GET))
+		echo "<p>Bonjour $prenom</p><hr />";
+} else
 	exit;
 
 /**
  * Trésorier : upload files
  */
-if ($est_bureau) { ?>
-	<hr />
+if ($est_bureau && !isset ($_GET['prenom'])) { ?>
 	<form method="post" enctype="multipart/form-data">
-		Pour archiver des bulletins<br />(Ctrl+click pour multiple)<br />
+		<b>Archiver des bulletins</b><br />(Ctrl+click pour multiple)<br />
 		<input type="file" id="file" name="file[]" multiple ="true">
 		<button>Envoyer</button>
 	</form>
@@ -157,19 +166,19 @@ if ($est_bureau) { ?>
 			else
 				echo "<p style='color:red'>Erreur d'archivage du fichier <b>$local_file_name</b>.</p>";
 		}
-}
 
 /**
  * Trésorier : liste des employés
  */
-?><hr />
-Liste des bulletins à envoyer à :<br />
-<?
-if ($est_bureau && !isset ($_GET['prenom']))
+	?><hr />
+	<b>Envoyer un bulletin à :</b><br />
+	<?
+
 	foreach ($animateurs AS $mail => $prenom) {
 		$prenom_flat = str_replace(['é','è',' '], ['e','e','-'], $prenom);
 		echo "<a href='./?prenom=$prenom_flat'>$prenom</a><br />";
 	}
+}
 
 /**
  * Liste des bulletins d'un employé
@@ -177,29 +186,19 @@ if ($est_bureau && !isset ($_GET['prenom']))
 // Envoi des bulletins par le trésorier
 if ($est_bureau) {
 	$prenom_liste = @$_GET['prenom'];
-	$time_bulletin = time() - 15*24*3600;
-	$mois_bulletin = $mois[date('m',$time_bulletin)].date(' Y',$time_bulletin);
-	$intro_liste = 'Pour envoyer un bulletin de paie à '.$prenom_liste.
-		',<br/>modifiez le texte';
+	$intro_liste = '<b>Pour envoyer un bulletin de paie à '.$prenom_liste.
+		'</b> :<br/><br/><b>Modifiez le texte<b><br/>';
 	$mail_liste = @$mailAnimateurs [$prenom_liste];
-	$titre_liste = "Bulletin de paie de $prenom_liste pour $mois_bulletin";
-	$texte_edit_liste = "Bonjour $prenom_liste.
-Meilleurs voeux pour cette année 2022.
+	$titre_liste = "Bulletin de paie de $prenom_liste pour <MOIS_BULLETIN>";
 
-Ci-joint ton bulletin de paie pour $mois_bulletin.
-La somme correspondante à la dernière ligne a été virée sur ton compte.
+	foreach ($animateurs AS $nouveau_prenom)
+		$texte_edit_liste = str_replace ($nouveau_prenom, $prenom_liste, $texte_edit_liste);
 
-Cordialement.
-
-Jean François Bonin.
-Votre nouveau trésorier
-
-Rappel : tu retrouveras tes bulletins de paie et attestations sur http://chaville.gym.c92.fr/archives
-Ces fichiers peuvent être lus et imprimés avec https://get.adobe.com/fr/reader/ (Télécharger Acrobat Reader)";
+	echo '<hr />';
 }
 // Récupération d'un bulletin par un employé
 else {
-	$intro_liste = 'Pour obtenir une copie d\'un bulletin de paie';
+	$intro_liste = '<b>Pour obtenir une copie d\'un bulletin de paie :</b><br/>';
 	$prenom_liste = $prenom;
 	$mail_liste = $session_mail;
 	$titre_liste = 'Votre document Chavil\'GYM';
@@ -220,14 +219,8 @@ if ($prenom_liste) {
 	$prenom_liste_flat = str_replace(['é','è'], 'e', $prenom_liste);
 	$files = glob('pdf/*'.$prenom_liste_flat.'.pdf');
 ?>
-	<hr />
 	<form action="index.php" method="POST">
-		<?=$intro_liste?>,<br />
-		sélectionnez le dans la liste ci-dessous puis<br/>
-		<input type="submit" style="cursor:pointer;display:inline-block"
-			title="Cliquez pour recevoir le document par mail"
-			value="envoyer à <?=$mail_liste?>" />
-		<br /><br />
+		<?=$intro_liste?>
 
 		<input type="hidden" name="send_address" value="<?=$mail_liste?>" />
 		<input type="hidden" name="send_subject" value="<?=$titre_liste?>" />
@@ -238,6 +231,7 @@ if ($prenom_liste) {
 			<textarea name="send_body" rows="15" cols="80"><?=$texte_edit_liste?></textarea><br/><br/>
 		<? } ?>
 
+		<br /><b>Sélectionnez le document dans la liste ci-dessous</b><br/>
 		<? if ($files)
 			foreach (array_reverse($files) AS $k=>$f) {
 				$nf = explode ('-', str_replace ('/', '-', $f));
@@ -248,6 +242,12 @@ if ($prenom_liste) {
 				<br><?
 			}
 		?>
+
+		<br/><b>Puis</b><br/>
+		<input type="submit" style="cursor:pointer;display:inline-block"
+			title="Cliquez pour recevoir le document par mail"
+			value="envoyer à <?=$mail_liste?>" />
+		<br /><br />
 	</form>
 <? }
 
