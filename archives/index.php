@@ -2,6 +2,7 @@
 <h3>Archives de Chavil'GYM</h3>
 
 <?php
+//TODO diffusion des attestations
 error_reporting(E_ALL);
 ini_set('display_errors','on');
 
@@ -63,7 +64,7 @@ if ($prenom && $session_id != $md5) {
 		$_POST['send_address'] = $session_mail;
 		$_POST['send_subject'] = 'Validation de votre connexion à chavil.gym';
 		$_POST['send_body'] = "Pour valider votre connexion à chavil.gym,
-cliquez sur {$_SERVER['HTTP_ORIGIN']}{$_SERVER['SCRIPT_NAME']}?session_id=$md5";
+cliquez sur https://{$_SERVER['SERVER_NAME']}{$_SERVER['REQUEST_URI']}?session_id=$md5";
 		$_POST['send_confirm'] = 'Un mail de vérification de votre connexion vient de vous être envoyé.';
 	}
 	// Les animateurs n'ont pas besoin de valider
@@ -71,28 +72,14 @@ cliquez sur {$_SERVER['HTTP_ORIGIN']}{$_SERVER['SCRIPT_NAME']}?session_id=$md5";
 		$session_id = $md5;
 }
 
-setcookie('session_mail', $session_mail, time() + (86400 * 365)); // Durée 1 an
-setcookie('session_id', $session_id, time() + (86400 * 365));
-
-$debug = [
-	'COOKIE' => $_COOKIE,
-	'POST' => $_POST,
-	'salt' => $salt,
-	'md5' => $md5,
-	'session_id' => $session_id,
-	'session_mail' => $session_mail,
-	'prenom' => $prenom,
-	'est_bureau' => $est_bureau,
-];
-//*DCMM*/echo"<pre style='background:white;color:black;font-size:16px'> = ".var_export($debug,true).'</pre>'.PHP_EOL;
-
 /**
  * Envoi d'un mail
  */
 if (isset ($_POST['send_address'])) {
 	if (isset (($bureau + $animateurs)[$_POST['send_address']])) { // Seulement vers des mails connus
 		$send_subject = explode ('<', $_POST['send_subject']);
-		preg_match('/([0-9]*)-([0-9]*)-/', $_POST['send_attachment'], $an_mois);
+
+		preg_match('/([0-9]*)-([0-9]*)-/', @$_POST['send_attachment'], $an_mois);
 		if (count ($send_subject) && count ($an_mois))
 			$_POST['send_subject'] = $send_subject[0].$mois[$an_mois[2]].' '.$an_mois[1].' ';
 
@@ -103,7 +90,7 @@ if (isset ($_POST['send_address'])) {
 		$mailer->FromName = 'Chavil\'GYM';
 		$mailer->From = 'chavil.gym@cavailhez.fr';
 		$mailer->addAddress ($_POST['send_address']);
-		$mailer->addBCC('chavil.gym@cavailhez.fr', 'jfbonnin78140@gmail.com');
+		$mailer->addBCC('chavil.gym@cavailhez.fr');
 		$mailer->Subject = $_POST['send_subject'] ?: 'Chavil\'GYM';
 		$mailer->Body = $_POST['send_body'];
 		if (isset ($_POST['send_attachment']))
@@ -114,9 +101,11 @@ if (isset ($_POST['send_address'])) {
 		else {
 			$mailer->Send();
 			echo "<p style='color:red'>{$_POST['send_confirm']}</p>";
-			file_put_contents ('texte_mail.php',
-				"\n\$texte_edit_liste = \"{$_POST['send_body']}\";\n",
-				FILE_APPEND);
+
+			if (isset ($_POST['send_attachment']))
+				file_put_contents ('texte_mail.php',
+					"\n\$texte_edit_liste = \"{$_POST['send_body']}\";\n",
+					FILE_APPEND);
 		}
 	} else
 		echo "<p style='color:red'>Mail <b><?=$send_address?></b> inconnu.<p>";
